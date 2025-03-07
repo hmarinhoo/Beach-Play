@@ -37,4 +37,16 @@ public class ReservationController {
 		repository.add(reservation);
 		return ResponseEntity.status(201).body(reservation);
 	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<Reservation> get(@PathVariable Long id) {
+		System.out.println("Buscando reserva " + id);
+		var res = repository.stream()
+				.filter(c -> c.getId().equals(id)) 
+				.findFirst();
+		if (res.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(res.get());
+	}
 }
