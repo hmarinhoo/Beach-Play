@@ -1,3 +1,4 @@
+
 package br.com.fiap.beach_play_api.controller;
 
 import java.time.LocalDate;
