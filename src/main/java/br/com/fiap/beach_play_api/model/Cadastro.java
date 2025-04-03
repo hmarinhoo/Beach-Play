@@ -1,50 +1,32 @@
 package br.com.fiap.beach_play_api.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Entity
+@Data
 public class Cadastro {
+
+    @NotBlank(message = "O nome é obrigatório")
+    @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ]+\\s+[A-Za-zÀ-ÖØ-öø-ÿ]+.*$", message = "Informe o nome completo (mínimo 2 palavras)")
     private String name;
+
+    @NotBlank(message = "O email é obrigatório")
     private String email;
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String cpf;
+
+    @NotBlank(message = "A senha é obrigatória")
+    @Size(min = 5, max = 10, message = "Deve ter entre 5 e 10 caracteres.")
     private String senha;
 
-    //Construtores
-    public Cadastro(String name, String email, String cpf, String senha) {
-        this.name = name;
-        this.email = email;
-        this.cpf = cpf;
-        this.senha = senha;
-    }
-
-    //Getters e Setters
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
+    
 }
 

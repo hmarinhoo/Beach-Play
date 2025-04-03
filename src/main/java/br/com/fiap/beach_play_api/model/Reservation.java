@@ -4,10 +4,25 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Random;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
+
+@Entity
 public class Reservation {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull (message = "o número da quadra é obrigatório")
     private int quadra;
+
+    @NotNull (message = "a escolha da data é obrigatória")
     private LocalDate data;
+
+    @NotNull (message = "o horário é obrigatório")
     private LocalTime horario;
 
     //  Contrutores
