@@ -5,9 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale.Category;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,14 +16,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.beach_play_api.model.Reservation;
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:3000") // Permite requisições do frontend
+@CrossOrigin(origins = "http://localhost:3000") 
 @RestController
-@RequestMapping("/reservations") // definindo as rotas
+@RequestMapping("/reservations") 
 public class ReservationController {
 
 	private List<Reservation> repository = new ArrayList<>(List.of(
@@ -83,11 +80,5 @@ public class ReservationController {
         return ResponseEntity.notFound().build();
     }
 
-    private Reservation getReservation(Long id) {
-        return repository.stream()
-                .filter(res -> res.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
+    
 }

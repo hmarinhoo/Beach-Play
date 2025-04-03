@@ -32,6 +32,7 @@ public class Reservation {
         this.data = data;
         this.horario = horario;
     }
+    
     //  Getters (obter valor, permite visualizar, ler o valor do atributo)
     //  Setters (modificar o valor)
     public Long getId() {

@@ -23,7 +23,7 @@ public class ValidationHandler {
     public List<ValidationErrorMessage> handle(MethodArgumentNotValidException e) {
         return e.getFieldErrors()
                 .stream()
-                .map(ValidationErrorMessage::new) //metodo de referencia
+                .map(ValidationErrorMessage::new) 
                 .toList();
     }
 

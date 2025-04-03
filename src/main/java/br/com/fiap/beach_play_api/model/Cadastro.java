@@ -13,20 +13,23 @@ import lombok.Data;
 @Data
 public class Cadastro {
 
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;  
+
     @NotBlank(message = "O nome é obrigatório")
     @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ]+\\s+[A-Za-zÀ-ÖØ-öø-ÿ]+.*$", message = "Informe o nome completo (mínimo 2 palavras)")
-    private String name;
+    private String nome;
 
     @NotBlank(message = "O email é obrigatório")
     private String email;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String cpf;
+    @NotBlank(message = "O CPF é obrigatório")
+    private String cpf;  
 
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 5, max = 10, message = "Deve ter entre 5 e 10 caracteres.")
     private String senha;
-
-    
 }
+
 
