@@ -9,10 +9,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
 @Entity
-@Data
 public class Reservation {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,5 +25,38 @@ public class Reservation {
     @NotNull (message = "o horário é obrigatório")
     private LocalTime horario;
 
-   
+    //  Contrutores
+    public Reservation(Long id, int quadra, LocalDate data, LocalTime horario) {
+        this.id = Math.abs(new Random().nextLong()); //aleatorizar um id
+        this.quadra = quadra;
+        this.data = data;
+        this.horario = horario;
+    }
+    //  Getters (obter valor, permite visualizar, ler o valor do atributo)
+    //  Setters (modificar o valor)
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public int getQuadra() {
+        return quadra;
+    }
+    public void setQuadra(int quadra) {
+        this.quadra = quadra;
+    }
+    public LocalDate getData() {
+        return data;
+    }
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+    public LocalTime getHorario() {
+        return horario;
+    }
+    public void setHorario(LocalTime horario) {
+        this.horario = horario;
+    }
+    
 }
