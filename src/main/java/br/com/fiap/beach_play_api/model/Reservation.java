@@ -25,13 +25,19 @@ public class Reservation {
     @NotNull (message = "o horário é obrigatório")
     private LocalTime horario;
 
+    private Long userId;
+
     //  Contrutores
-    public Reservation(Long id, int quadra, LocalDate data, LocalTime horario) {
-        this.id = Math.abs(new Random().nextLong()); //aleatorizar um id
+    public Reservation(int quadra, LocalDate data, LocalTime horario, Long userId) {
         this.quadra = quadra;
         this.data = data;
         this.horario = horario;
+        this.userId = userId;
     }
+    
+    public Reservation() {
+    }
+    
     
     //  Getters (obter valor, permite visualizar, ler o valor do atributo)
     //  Setters (modificar o valor)
@@ -59,5 +65,11 @@ public class Reservation {
     public void setHorario(LocalTime horario) {
         this.horario = horario;
     }
-    
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 }

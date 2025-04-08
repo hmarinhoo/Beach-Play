@@ -1,6 +1,8 @@
 package br.com.fiap.beach_play_api.controller;
 
+import br.com.fiap.beach_play_api.model.Cadastro;
 import br.com.fiap.beach_play_api.model.Login;
+import br.com.fiap.beach_play_api.repository.CadastroRepository;
 import br.com.fiap.beach_play_api.repository.LoginRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +18,18 @@ import java.util.Optional;
 public class LoginController {
 
     @Autowired
+    private CadastroRepository cadastroRepository;
+    @Autowired
     private LoginRepository loginRepository;
+
 
     // Autenticação de login (POST)
     @PostMapping
-    public ResponseEntity<String> login(@Valid @RequestBody Login login) {
-        Optional<Login> usuario = loginRepository.findByEmail(login.getEmail());
-
+    public ResponseEntity<?> login(@Valid @RequestBody Login login) {
+        Optional<Cadastro> usuario = cadastroRepository.findByEmail(login.getEmail());
+    
         if (usuario.isPresent() && usuario.get().getSenha().equals(login.getSenha())) {
-            return ResponseEntity.ok("Login realizado com sucesso!");
+            return ResponseEntity.ok(usuario.get()); // retorna os dados do usuário
         } else {
             return ResponseEntity.status(401).body("Email ou senha inválidos!");
         }

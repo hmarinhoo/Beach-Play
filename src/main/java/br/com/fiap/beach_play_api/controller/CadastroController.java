@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/cadastro") 
 @CrossOrigin(origins = "http://localhost:3000")
+
+
 public class CadastroController {
 
     @Autowired
@@ -79,4 +81,5 @@ public class CadastroController {
         cadastroRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+    
 }

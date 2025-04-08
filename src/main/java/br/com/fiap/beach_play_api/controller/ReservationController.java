@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.beach_play_api.model.Reservation;
+import br.com.fiap.beach_play_api.repository.ReservationRepository;
 import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:3000") 
@@ -25,60 +27,59 @@ import jakarta.validation.Valid;
 @RequestMapping("/reservations") 
 public class ReservationController {
 
-	private List<Reservation> repository = new ArrayList<>(List.of(
-			new Reservation(1L, 1, LocalDate.of(2025, 3, 1), LocalTime.of(10, 0))));
+	@Autowired
+private ReservationRepository repository;
+
 
 	// Método Get - Retorna as reservas cadastradas.
 	@GetMapping
-	public List<Reservation> index() {
-		return repository;
-	}
+public List<Reservation> index() {
+    return repository.findAll();
+}
+
 
 	// Método Post - Para criar uma reserva.
 	@PostMapping
-	public ResponseEntity<Reservation> create(@RequestBody @Valid Reservation reservation) {
-		System.out.println("Cadastrando a reserva na quadra: " + reservation.getQuadra());
-		repository.add(reservation);
-		return ResponseEntity.status(201).body(reservation);
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<Reservation> get(@PathVariable Long id) {
-		System.out.println("Buscando reserva " + id);
-		var res = repository.stream()
-				.filter(c -> c.getId().equals(id))
-				.findFirst();
-		return res.map(ResponseEntity::ok)
-				.orElseGet(() -> ResponseEntity.notFound().build());
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Long id) {
-		System.out.println("Removendo reserva " + id);
-
-		boolean removed = repository.removeIf(res -> res.getId().equals(id));
-
-		if (removed) {
-			return ResponseEntity.noContent().build(); // Retorna 204 No Content se foi removido
-		} else {
-			return ResponseEntity.notFound().build(); // Retorna 404 se o ID não existir
-		}
-	}
-
-	// Método Put para o update
-	@PutMapping("/{id}")
-    public ResponseEntity<Reservation> update(@PathVariable Long id, @RequestBody Reservation reservation) {
-        System.out.println("Atualizando reserva " + reservation);
-
-        for (int i = 0; i < repository.size(); i++) {
-            if (repository.get(i).getId().equals(id)) {
-                reservation.setId(id);
-                repository.set(i, reservation);
-                return ResponseEntity.ok(reservation);
-            }
-        }
-        return ResponseEntity.notFound().build();
+public ResponseEntity<?> create(@RequestBody @Valid Reservation reservation) {
+    if (reservation.getUserId() == null || reservation.getUserId() <= 0) {
+        return ResponseEntity.status(400).body("Usuário não está logado ou ID inválido.");
     }
 
-    
+    Reservation saved = repository.save(reservation);
+    return ResponseEntity.status(201).body(saved);
+}
+
+
+@GetMapping("/{id}")
+public ResponseEntity<Reservation> get(@PathVariable Long id) {
+    return repository.findById(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
+
+
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> delete(@PathVariable Long id) {
+    if (repository.existsById(id)) {
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.notFound().build();
+}
+
+@PutMapping("/{id}")
+public ResponseEntity<Reservation> update(@PathVariable Long id, @RequestBody Reservation reservation) {
+    if (!repository.existsById(id)) {
+        return ResponseEntity.notFound().build();
+    }
+    reservation.setId(id);
+    Reservation updated = repository.save(reservation);
+    return ResponseEntity.ok(updated);
+}
+
+@GetMapping("/usuario/{userId}")
+public List<Reservation> getByUserId(@PathVariable Long userId) {
+    return repository.findByUserId(userId);
+}
+
 }

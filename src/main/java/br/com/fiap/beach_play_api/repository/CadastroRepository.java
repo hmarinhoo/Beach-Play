@@ -1,9 +1,10 @@
 package br.com.fiap.beach_play_api.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import br.com.fiap.beach_play_api.model.Cadastro;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
+import java.util.Optional;
+
 public interface CadastroRepository extends JpaRepository<Cadastro, Long> {
+    Optional<Cadastro> findByEmail(String email);
 }
