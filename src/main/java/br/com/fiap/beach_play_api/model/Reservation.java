@@ -2,7 +2,6 @@ package br.com.fiap.beach_play_api.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Random;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
