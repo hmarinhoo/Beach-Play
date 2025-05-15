@@ -1,4 +1,3 @@
-
 package br.com.fiap.beach_play_api.controller;
 
 import java.time.LocalDate;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,13 +19,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody; // Corrigido aqui!
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.beach_play_api.model.Reservation;
 import br.com.fiap.beach_play_api.repository.ReservationRepository;
 import br.com.fiap.beach_play_api.specification.ReservationSpecification;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,68 +34,62 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/reservations")
 @Slf4j
-
 public class ReservationController {
-    public record ReservationFilter(
-            Integer quadra,
-            LocalDate startDate,
-            LocalDate endDate,
-            Long userId) {
-    }
 
     @Autowired
     private ReservationRepository repository;
 
     // Método Post - Para criar uma reserva.
-    @CacheEvict(value = "reservas", allEntries = true) // serve para limpar o cache quando salvar
+    @CacheEvict(value = "reservas", allEntries = true)
     @PostMapping
     @Operation(summary = "Faz uma nova reserva.", description = "Insere uma nova reserva ao sistema.")
     public ResponseEntity<?> create(@RequestBody @Valid Reservation reservation) {
         if (reservation.getUserId() == null || reservation.getUserId() <= 0) {
-            return ResponseEntity.status(400).body("Usuário não está logado ou ID inválido.");
+            return ResponseEntity.badRequest().body("Usuário não está logado ou ID inválido.");
         }
 
         Reservation saved = repository.save(reservation);
         return ResponseEntity.status(201).body(saved);
     }
 
-    // Método Get - todas as reservas cadastradas, independente do id do usuario
-    @Cacheable("reservas")
+    // Busca reservas com filtros e paginação (unificado)
     @GetMapping
-    @Operation(summary = "Lista as reservas.", description = "Retorna todas as reservas cadastrados no sistema.")
-    public List<Reservation> index() {
-        return repository.findAll();
+    @Cacheable("reservas")
+    @Operation(summary = "Lista as reservas.", description = "Retorna todas as reservas cadastradas, com filtros e paginação opcionais.")
+    public Page<Reservation> index(
+            @RequestParam(required = false) Integer quadra,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Long userId,
+            @PageableDefault(size = 10, sort = "data", direction = Direction.DESC) Pageable pageable) {
+    
+        var filters = new ReservationFilter(quadra, startDate, endDate, userId);
+        var specification = ReservationSpecification.withFilters(filters);
+        return repository.findAll(specification, pageable);
     }
+    
 
-    // Busca as reservas por id da reserva
+    // Busca uma reserva pelo id
     @GetMapping("/{id}")
-    @Operation(summary = "Busca e lista reservas por id da reserva.", description = "Retorna todas as reservas cadastradas no sistema que correspondem com o id aleatório gerado na criação da reserva.")
+    @Operation(summary = "Busca e lista reserva por id.", description = "Retorna a reserva correspondente ao id.")
     public ResponseEntity<Reservation> get(@PathVariable Long id) {
         return repository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Busca todas as reservas por id do usuario
+    // Busca todas as reservas por id do usuário (sem paginação)
     @GetMapping("/usuario/{userId}")
-    @Operation(summary = "Busca e lista reservas por id de cadastro.", description = "Retorna todas as reservas cadastradas no sistema que correspondem o userId com o id do cadastro de usuário.")
+    @Operation(summary = "Busca reservas por usuário.", description = "Retorna todas as reservas do usuário informado.")
     public List<Reservation> getByUserId(@PathVariable Long userId) {
         return repository.findByUserId(userId);
     }
 
-    // Método para buscar reservas com filtros e paginação
-    @GetMapping
-    public Page<Reservation> index(ReservationFilter filters,
-            @PageableDefault(size = 10, sort = "date", direction = Direction.DESC) Pageable pageable) {
-        var specification = ReservationSpecification.withFilters(filters);
-        return repository.findAll(specification, pageable);
-    }
-
-    // Edita a reserva
+    // Edita uma reserva
     @PutMapping("/{id}")
-    @Operation(summary = "Edita uma reserva.", description = "Permite a edição de dados de reservas já cadastradas no sistema.")
+    @Operation(summary = "Edita uma reserva.", description = "Permite a edição dos dados de uma reserva já cadastrada.")
     @CacheEvict(value = "reservas", allEntries = true)
-    public ResponseEntity<Reservation> update(@PathVariable Long id, @RequestBody Reservation reservation) {
+    public ResponseEntity<Reservation> update(@PathVariable Long id, @RequestBody @Valid Reservation reservation) {
         if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -115,4 +110,11 @@ public class ReservationController {
         return ResponseEntity.notFound().build();
     }
 
+    // Record para filtros
+    public record ReservationFilter(
+            Integer quadra,
+            LocalDate startDate,
+            LocalDate endDate,
+            Long userId) {
+    }
 }
