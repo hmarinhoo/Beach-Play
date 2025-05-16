@@ -1,36 +1,40 @@
 package br.com.fiap.beach_play_api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody; // CORRETO!
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import br.com.fiap.beach_play_api.model.Login;
 import br.com.fiap.beach_play_api.model.dto.LoginRequestDTO;
 import br.com.fiap.beach_play_api.model.dto.TokenDTO;
 import br.com.fiap.beach_play_api.service.TokenService;
-import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authManager;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
+    public AuthController(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
 
-    @PostMapping
-    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginRequestDTO loginDto) {
-        authManager.authenticate(
-            new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.senha())
-        );
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
+        if (Objects.equals(loginRequest.email(), "admin@beach.com") &&
+            Objects.equals(loginRequest.senha(), "123456")) {
 
-        String token = tokenService.generateToken(loginDto.email());
-        return ResponseEntity.ok(new TokenDTO(token));
+            // Usuário fictício para teste
+            Login login = Login.builder()
+                    .id(1L)
+                    .email(loginRequest.email())
+                    .senha(loginRequest.senha())
+                    .build();
+
+            TokenDTO token = tokenService.createToken(login);
+            return ResponseEntity.ok(token);
+        }
+
+        return ResponseEntity.status(401).body("Credenciais inválidas");
     }
 }

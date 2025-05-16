@@ -37,7 +37,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 var userOpt = cadastroRepository.findByEmail(email);
                 if (userOpt.isPresent()) {
                     var user = userOpt.get();
-                    var auth = new UsernamePasswordAuthenticationToken(user, null, null);
+                    var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }

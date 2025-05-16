@@ -3,6 +3,7 @@ package br.com.fiap.beach_play_api.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 @Entity
+@Builder
 @Data
 public class Login implements UserDetails {
     
